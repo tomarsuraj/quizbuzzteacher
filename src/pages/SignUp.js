@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react';
+import React, { useReducer, useState } from "react";
 import {
   Col,
   Container,
@@ -7,54 +7,30 @@ import {
   Button,
   FormControl,
   Toast,
-} from 'react-bootstrap';
-import { handleTeacherSignup } from '../firebase/auth';
-
-const classList = ['MCA', 'BCA', 'MBA', 'M.Com', 'B.Com'];
-const initialFormState = {
-  name: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-  classList: [],
-  classSelect: 'default',
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case 'name':
-      return { ...state, name: action.payload };
-    case 'email':
-      return { ...state, email: action.payload };
-
-    case 'password':
-      return { ...state, password: action.payload };
-    case 'confirmPassword':
-      return { ...state, confirmPassword: action.payload };
-    case 'addClass':
-      return {
-        ...state,
-        classList: [...state.classList, action.payload],
-        classSelect: action.payload,
-      };
-    case 'removeClass':
-      const { classList } = state;
-      classList.splice(action.payload, 1);
-      return { ...state, classList };
-
-    default:
-      return state;
-  }
-};
+  CloseButton,
+} from "react-bootstrap";
+import reducer from "../Reducer/signupReducer";
+import { handleTeacherSignup } from "../firebase/auth";
+import {
+  ADD_CLASS,
+  REMOVE_CLASS,
+  SET_CONFIRMPASSWORD,
+  SET_EMAIL,
+  SET_NAME,
+  SET_PASSWORD,
+} from "../actions/signupAction.type";
+import { classList, initialSignUpFormState } from "../utility/constanst";
 
 const SignUp = () => {
-  const [formState, formDispatch] = useReducer(reducer, initialFormState);
+  const [formState, formDispatch] = useReducer(reducer, initialSignUpFormState);
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formState.password === formState.confirmPassword) {
       handleTeacherSignup(formState);
     }
   };
+
+  console.log("formState", formState);
 
   return (
     <Container className="mt-3">
@@ -71,7 +47,7 @@ const SignUp = () => {
               placeholder="Enter Name"
               value={formState.name}
               onChange={(e) =>
-                formDispatch({ type: 'name', payload: e.target.value })
+                formDispatch({ type: SET_NAME, payload: e.target.value })
               }
             />
           </Form.Group>
@@ -82,7 +58,7 @@ const SignUp = () => {
               placeholder="Enter email"
               value={formState.email}
               onChange={(e) =>
-                formDispatch({ type: 'email', payload: e.target.value })
+                formDispatch({ type: SET_EMAIL, payload: e.target.value })
               }
             />
             <Form.Text className="text-muted">
@@ -98,7 +74,10 @@ const SignUp = () => {
                   placeholder="Password"
                   value={formState.password}
                   onChange={(e) =>
-                    formDispatch({ type: 'password', payload: e.target.value })
+                    formDispatch({
+                      type: SET_PASSWORD,
+                      payload: e.target.value,
+                    })
                   }
                 />
               </Form.Group>
@@ -121,7 +100,7 @@ const SignUp = () => {
                   value={formState.confirmPassword}
                   onChange={(e) =>
                     formDispatch({
-                      type: 'confirmPassword',
+                      type: SET_CONFIRMPASSWORD,
                       payload: e.target.value,
                     })
                   }
@@ -129,19 +108,17 @@ const SignUp = () => {
               </Form.Group>
             </Col>
           </Row>
-          <div className=" mb-3 w-100 border d-flex">
+          <div className=" mb-3 w-100 border rounded d-flex">
             {formState.classList.map((value, index) => (
               <div key={index} className="mx-1">
                 <p>
                   {value}
-                  <span
+                  <CloseButton
                     onClick={() =>
-                      formDispatch({ type: 'removeClass', payload: index })
+                      formDispatch({ type: REMOVE_CLASS, payload: index })
                     }
-                    className="mx-1"
-                  >
-                    X
-                  </span>
+                    className="mx-1 text-danger"
+                  />
                 </p>
               </div>
             ))}
@@ -151,7 +128,7 @@ const SignUp = () => {
             className="mb-3"
             value={formState.classSelect}
             onChange={(e) =>
-              formDispatch({ type: 'addClass', payload: e.target.value })
+              formDispatch({ type: ADD_CLASS, payload: e.target.value })
             }
           >
             <option disabled value="default">
